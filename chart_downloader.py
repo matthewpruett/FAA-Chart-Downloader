@@ -2,6 +2,8 @@ import os
 import urllib
 import xml.etree.ElementTree as ET
 import zipfile
+import progressbar # progressbar2
+import time
 
 vfrSectionalCities = ["Albuquerque", "Anchorage", "Atlanta", "Bethel",
              "Billings", "Brownsville", "Cape Lisburne", "Charlotte",
@@ -27,6 +29,11 @@ tacCities = ["Anchorage-Fairbanks", "Atlanta", "Baltimore-Washington",
              "Puerto Rico-VI", "St Louis", "Salt Lake City", "San Diego",
              "San Francisco", "Seattle", "Tampa-Orlando"]
 
+bar = progressbar.ProgressBar(max_value=100)
+
+def updateProgress(current, chunk, total):
+    percent = current * chunk * 100 / total
+    bar.update(percent)
 
 def downloadFile(fileUrl, chartName):
     # Create downloads directory if it does not exist
@@ -38,16 +45,19 @@ def downloadFile(fileUrl, chartName):
 
     # Download chart
     print "Downloading " + chartName
-    urllib.urlretrieve(fileUrl, "downloads/temp.zip")
+    bar.begin()
+    urllib.urlretrieve(fileUrl, "downloads/temp.zip", reporthook=updateProgress)
+    bar.finish()
 
     # Extract chart from zip file
-    print "Extracting file..."
+    print "\nExtracting file..."
     zipRef = zipfile.ZipFile("downloads/temp.zip", 'r')
     zipRef.extract(chartName, "downloads")
     zipRef.close()
 
     # Remove zip file
     os.remove("downloads/temp.zip")
+
     return
 
 def getVfrSectional(cityName, edition = "current", format = "tiff"):
@@ -121,4 +131,4 @@ def getTac(cityName, edition = "current", format = "tiff"):
     return
 
 #getVfrSectional(vfrSectionalCities[20], "current")
-getTac(tacCities[1])
+getTac(tacCities[8])
