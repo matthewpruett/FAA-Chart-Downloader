@@ -3,7 +3,6 @@ import urllib
 import xml.etree.ElementTree as ET
 import zipfile
 import progressbar # progressbar2
-import time
 
 vfrSectionalCities = ["Albuquerque", "Anchorage", "Atlanta", "Bethel",
              "Billings", "Brownsville", "Cape Lisburne", "Charlotte",
@@ -44,15 +43,22 @@ def downloadFile(fileUrl, chartName):
         print "Directory 'downloads' already exists"
 
     # Download chart
-    print "Downloading " + chartName
-    bar.begin()
+    downloadMessage = "Downloading "
+    for name in chartName:
+        downloadMessage += name
+        if name != chartName[len(chartName)-1]:
+            downloadMessage += ", "
+    print downloadMessage
     urllib.urlretrieve(fileUrl, "downloads/temp.zip", reporthook=updateProgress)
-    bar.finish()
 
     # Extract chart from zip file
-    print "\nExtracting file..."
+    if len(chartName) == 1:
+        print "\nExtracting file..."
+    else:
+        print "\nExtracting files..."
     zipRef = zipfile.ZipFile("downloads/temp.zip", 'r')
-    zipRef.extract(chartName, "downloads")
+    for name in chartName:
+        zipRef.extract(name, "downloads")
     zipRef.close()
 
     # Remove zip file
@@ -89,7 +95,7 @@ def getVfrSectional(cityName, edition = "current", format = "tiff"):
     print editionDate
     print productUrl
 
-    fileName = cityName + " SEC " + editionNum + ".tif"
+    fileName = [cityName + " SEC " + editionNum + ".tif"]
 
     downloadFile(productUrl, fileName)
 
@@ -124,11 +130,12 @@ def getTac(cityName, edition = "current", format = "tiff"):
     print editionDate
     print productUrl
 
-    fileName = cityName + " TAC " + editionNum + ".tif"
+    fileName = [cityName + " TAC " + editionNum + ".tif",
+                cityName + " FLY " + editionNum + ".tif"]
 
     downloadFile(productUrl, fileName)
 
     return
 
-#getVfrSectional(vfrSectionalCities[20], "current")
-getTac(tacCities[8])
+getVfrSectional("Cold Bay", "current")
+#getTac(tacCities[28])
