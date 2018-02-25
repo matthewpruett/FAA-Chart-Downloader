@@ -130,12 +130,21 @@ def getTac(cityName, edition = "current", format = "tiff"):
     print editionDate
     print productUrl
 
-    fileName = [cityName + " TAC " + editionNum + ".tif",
-                cityName + " FLY " + editionNum + ".tif"]
+    if cityName == "Tampa-Orlando":
+        fileName = ["Tampa" + " TAC " + editionNum + ".tif",
+                    "Orlando" + " TAC " + editionNum + ".tif",
+                    "Orlando" + " FLY " + editionNum + ".tif"]
+    elif cityName == "Denver-Colorado Springs":
+        fileName = ["Denver" + " TAC " + editionNum + ".tif",
+                    "Denver" + " FLY " + editionNum + ".tif",
+                    "Colorado Springs" + " TAC " + editionNum + ".tif"]
+    else:
+        fileName = [cityName + " TAC " + editionNum + ".tif",
+                    cityName + " FLY " + editionNum + ".tif"]
 
     downloadFile(productUrl, fileName)
 
     return
 
-getVfrSectional("Cold Bay", "current")
-#getTac(tacCities[28])
+#getVfrSectional("Cold Bay", "current")
+getTac("Denver-Colorado Springs")
