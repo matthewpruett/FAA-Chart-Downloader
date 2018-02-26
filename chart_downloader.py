@@ -3,6 +3,7 @@ import urllib
 import xml.etree.ElementTree as ET
 import zipfile
 import progressbar # progressbar2
+import math
 
 vfrSectionalCities = ["Albuquerque", "Anchorage", "Atlanta", "Bethel",
              "Billings", "Brownsville", "Cape Lisburne", "Charlotte",
@@ -146,5 +147,54 @@ def getTac(cityName, edition = "current", format = "tiff"):
 
     return
 
+def getIfr(chartNum, type = "low", edition = "current", format = "tiff"):
+
+    # Create API URL
+    ifrApi = "https://soa.smext.faa.gov/apra/enroute/chart?"
+    ifrApi += "edition="
+    ifrApi += edition
+    ifrApi += "&format="
+    ifrApi += format
+    ifrApi += "&geoname=US&seriesType="
+    ifrApi += type
+
+    print(ifrApi)
+
+    # Get API response
+    resp = urllib.urlopen(ifrApi)
+    xmlStr = resp.read()
+    print(xmlStr)
+
+    # Parse XML response
+    root = ET.fromstring(xmlStr)
+
+    editionInfo = root.findall("{http://arpa.ait.faa.gov/arpa_response}edition")[0]
+    editionDate = editionInfo.find("{http://arpa.ait.faa.gov/arpa_response}editionDate").text
+    editionNum = editionInfo.find("{http://arpa.ait.faa.gov/arpa_response}editionNumber").text
+    productUrl = editionInfo.find("{http://arpa.ait.faa.gov/arpa_response}product").get("url")
+
+    # Change URL for desired chart number
+    urlLen = len(productUrl)
+    tens = math.modf(chartNum / 10)[1]
+    newUrl = productUrl[:(urlLen-6)] + ("%i" % tens) + ("%i" % (chartNum - (tens * 10))) + ".zip"
+
+    print editionDate
+    print newUrl
+
+    if type == "high":
+        typeCode = "H"
+    else:
+        typeCode = "L"
+
+    if chartNum < 10:
+        fileName = ["ENR_" + typeCode + "0" + ("%i" % chartNum) + ".tif"]
+    else:
+        fileName = ["ENR_" + typeCode + ("%i" % chartNum) + ".tif"]
+
+    downloadFile(newUrl, fileName)
+
+    return
+
 #getVfrSectional("Cold Bay", "current")
-getTac("Denver-Colorado Springs")
+#getTac("Denver-Colorado Springs")
+getIfr(7, "high")
