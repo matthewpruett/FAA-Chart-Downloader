@@ -3,3 +3,5 @@ Program to download [FAA digital products](https://www.faa.gov/air_traffic/fligh
 ## Current Charts Supported
 * VFR Sectionals
 * Terminal Area Charts
+* IFR Low Altitude Enroute
+* IFR High Altitude Enroute
